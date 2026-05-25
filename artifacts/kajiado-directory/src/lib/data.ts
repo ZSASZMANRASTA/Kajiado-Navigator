@@ -47,6 +47,9 @@ export const SHOPS: Shop[] = [
     category: "Grocery",
     image_url: null,
     is_premium: true,
+    phone: "+254 712 345 678",
+    whatsapp: "+254712345678",
+    hours: "Mon–Sat 7am–9pm, Sun 8am–7pm",
   },
   {
     id: "kit-2",
@@ -56,6 +59,9 @@ export const SHOPS: Shop[] = [
     category: "Crafts & Art",
     image_url: null,
     is_premium: true,
+    phone: "+254 723 456 789",
+    whatsapp: "+254723456789",
+    hours: "Daily 9am–6pm",
   },
   {
     id: "kit-3",
@@ -65,6 +71,8 @@ export const SHOPS: Shop[] = [
     category: "Hardware",
     image_url: null,
     is_premium: false,
+    phone: "+254 734 567 890",
+    hours: "Mon–Sat 7:30am–6pm",
   },
   {
     id: "kit-4",
@@ -74,6 +82,9 @@ export const SHOPS: Shop[] = [
     category: "Electronics",
     image_url: null,
     is_premium: false,
+    phone: "+254 745 678 901",
+    whatsapp: "+254745678901",
+    hours: "Mon–Sat 8am–8pm, Sun 10am–6pm",
   },
   {
     id: "kit-5",
@@ -83,6 +94,9 @@ export const SHOPS: Shop[] = [
     category: "Restaurant",
     image_url: null,
     is_premium: true,
+    phone: "+254 756 789 012",
+    whatsapp: "+254756789012",
+    hours: "Daily 11am–10pm",
   },
   {
     id: "ron-1",
@@ -92,6 +106,8 @@ export const SHOPS: Shop[] = [
     category: "Grocery",
     image_url: null,
     is_premium: false,
+    phone: "+254 767 890 123",
+    hours: "Daily 6am–7pm",
   },
   {
     id: "ron-2",
@@ -101,6 +117,9 @@ export const SHOPS: Shop[] = [
     category: "Health & Pharmacy",
     image_url: null,
     is_premium: true,
+    phone: "+254 778 901 234",
+    whatsapp: "+254778901234",
+    hours: "Mon–Sat 8am–8pm, Sun 9am–5pm",
   },
   {
     id: "ron-3",
@@ -110,7 +129,20 @@ export const SHOPS: Shop[] = [
     category: "Hospitality",
     image_url: null,
     is_premium: true,
+    phone: "+254 789 012 345",
+    whatsapp: "+254789012345",
+    hours: "Open 24 hours",
   },
+];
+
+export const ALL_CATEGORIES = [
+  "Grocery",
+  "Crafts & Art",
+  "Hardware",
+  "Electronics",
+  "Restaurant",
+  "Health & Pharmacy",
+  "Hospitality",
 ];
 
 export const CATEGORY_COLORS: Record<string, string> = {

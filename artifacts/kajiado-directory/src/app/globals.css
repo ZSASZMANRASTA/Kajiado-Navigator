@@ -1,3 +1,6 @@
+@import "leaflet/dist/leaflet.css";
+@import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -44,7 +47,16 @@ body {
   display: none;
 }
 
-/* Smooth scrollbar */
+/* Hide horizontal scrollbar on category pills */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth scrollbar for sidebar */
 ::-webkit-scrollbar {
   width: 4px;
 }
