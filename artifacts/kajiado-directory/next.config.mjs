@@ -9,17 +9,19 @@ const nextConfig = {
     ],
   },
   async headers() {
-    if (process.env.NODE_ENV !== 'production') {
-      return [
-        {
-          source: '/(.*)',
-          headers: [
-            { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate' },
-          ],
-        },
-      ];
-    }
-    return [];
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          // Allow Replit preview iframe to embed the app
+          { key: 'X-Frame-Options', value: 'ALLOWALL' },
+          { key: 'Content-Security-Policy', value: "frame-ancestors *" },
+          ...(process.env.NODE_ENV !== 'production'
+            ? [{ key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate' }]
+            : []),
+        ],
+      },
+    ];
   },
 };
 

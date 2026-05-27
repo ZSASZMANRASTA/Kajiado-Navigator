@@ -39,10 +39,10 @@ export default function MerchantsSection({
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
-      {/* Hero or selected town header */}
       {!selectedTown ? (
         <div className="mb-8">
-          <div className="flex items-start justify-between gap-4 mb-2">
+          {/* Hero row */}
+          <div className="flex items-start justify-between gap-4 mb-6">
             <div>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 leading-tight">
                 Kajiado's Best<br />
@@ -52,15 +52,10 @@ export default function MerchantsSection({
                 {shops.length} merchants across {towns.length} towns
               </p>
             </div>
-            <button
-              onClick={onMapOpen}
-              className="sm:hidden flex items-center gap-1.5 text-xs font-semibold border border-gray-200 px-3 py-1.5 rounded-xl text-gray-500"
-            >
-              <Map className="w-3.5 h-3.5" />Map
-            </button>
           </div>
-          {/* Town pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 mt-4 scrollbar-hide">
+
+          {/* Town pills + Map button row */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <button
               onClick={onClearTown}
               className={`shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
@@ -84,14 +79,77 @@ export default function MerchantsSection({
                   <MapPin className="w-3 h-3" />
                   {town.name}
                   {count > 0 && (
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gray-100">
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600">
                       {count}
                     </span>
                   )}
                 </button>
               );
             })}
+
+            {/* Divider */}
+            <div className="w-px h-5 bg-gray-200 shrink-0 mx-1" />
+
+            {/* Map popup button */}
+            <button
+              onClick={onMapOpen}
+              className="shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border border-acacia/40 text-acacia bg-acacia/5 hover:bg-acacia/10 transition-all"
+            >
+              <Map className="w-3.5 h-3.5" />
+              View on Map
+            </button>
           </div>
+
+          {/* Map teaser card */}
+          <button
+            onClick={onMapOpen}
+            className="mt-4 w-full rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all group relative"
+          >
+            {/* Fake satellite map background */}
+            <div
+              className="h-28 w-full relative"
+              style={{
+                background: "linear-gradient(135deg, #2d4a2d 0%, #3a5c3a 20%, #2a4020 40%, #4a6830 60%, #3d5528 80%, #2d4a2d 100%)",
+              }}
+            >
+              {/* Grid overlay for satellite look */}
+              <div className="absolute inset-0 opacity-20" style={{
+                backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.1) 20px, rgba(255,255,255,0.1) 21px), repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.1) 20px, rgba(255,255,255,0.1) 21px)"
+              }} />
+              {/* Town pins */}
+              {towns.map((town, i) => (
+                <div
+                  key={town.id}
+                  className="absolute flex flex-col items-center"
+                  style={{
+                    left: `${15 + i * 17}%`,
+                    top: `${20 + (i % 2) * 35}%`,
+                  }}
+                >
+                  <div className="w-4 h-4 rounded-full bg-ochre border-2 border-white shadow-md flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                  </div>
+                  <span className="text-[8px] text-white font-bold mt-0.5 drop-shadow-md whitespace-nowrap">
+                    {town.name}
+                  </span>
+                </div>
+              ))}
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 backdrop-blur-sm text-gray-800 text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+                  <Map className="w-3.5 h-3.5 text-acacia" />
+                  Open Satellite Map
+                </div>
+              </div>
+            </div>
+            <div className="px-4 py-2.5 bg-white flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Map className="w-3.5 h-3.5 text-acacia" />
+                <span className="text-xs font-semibold text-gray-700">Kajiado County Satellite Map</span>
+              </div>
+              <span className="text-[10px] text-acacia font-semibold">Tap to explore →</span>
+            </div>
+          </button>
         </div>
       ) : (
         <div className="mb-6">
@@ -109,6 +167,9 @@ export default function MerchantsSection({
               <h2 className="text-xl font-extrabold text-gray-800">{selectedTown.name}</h2>
               <p className="text-sm text-gray-400">
                 {shops.filter((s) => s.town_id === selectedTown.id).length} merchants
+                <button onClick={onMapOpen} className="ml-2 text-acacia hover:underline text-xs font-semibold">
+                  View on map →
+                </button>
               </p>
             </div>
           </div>
@@ -155,7 +216,6 @@ export default function MerchantsSection({
         </div>
       </div>
 
-      {/* Count + clear */}
       {(isFiltering || selectedTown) && (
         <p className="text-xs text-gray-400 mb-4">
           {displayShops.length} result{displayShops.length !== 1 ? "s" : ""}
@@ -167,7 +227,6 @@ export default function MerchantsSection({
         </p>
       )}
 
-      {/* Grid */}
       {displayShops.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
