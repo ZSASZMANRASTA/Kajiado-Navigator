@@ -17,6 +17,8 @@ export interface Shop {
   phone?: string | null;
   whatsapp?: string | null;
   hours?: string | null;
+  tagline?: string;
+  color?: string;
 }
 
 export interface Product {
@@ -26,9 +28,24 @@ export interface Product {
   price: number;
   unit: string;
   category: string;
+  image_url: string | null;
   in_stock: boolean;
   badge?: string | null;
   whatsapp_order?: string;
+}
+
+export interface Job {
+  id: string;
+  title: string;
+  company: string;
+  town: string;
+  type: "Full-time" | "Part-time" | "Contract" | "Casual";
+  salary?: string;
+  description: string;
+  requirements: string[];
+  posted_days_ago: number;
+  whatsapp: string;
+  category: string;
 }
 
 export interface SubmitShopPayload {

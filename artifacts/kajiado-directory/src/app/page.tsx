@@ -1,25 +1,22 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Navbar from "@/components/ui/Navbar";
+import Navbar, { Tab } from "@/components/ui/Navbar";
 import MerchantsSection from "@/components/ui/MerchantsSection";
 import ShopSection from "@/components/ui/ShopSection";
-import MerchantModal from "@/components/ui/MerchantModal";
+import JobsSection from "@/components/ui/JobsSection";
 import SubmitMerchantModal from "@/components/ui/SubmitMerchantModal";
 import MapModal from "@/components/ui/MapModal";
 import { Town, Shop } from "@/lib/types";
 import { fetchTowns, fetchShops, usingLiveData } from "@/lib/supabase";
-
-type Tab = "merchants" | "shop";
 
 export default function HomePage() {
   const [towns, setTowns] = useState<Town[]>([]);
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<Tab>("merchants");
+  const [activeTab, setActiveTab] = useState<Tab>("shop");
   const [selectedTown, setSelectedTown] = useState<Town | null>(null);
-  const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
@@ -38,15 +35,11 @@ export default function HomePage() {
     setActiveTab("merchants");
   }, []);
 
-  const selectedTownForShop = selectedShop
-    ? towns.find((t) => t.id === selectedShop.town_id) ?? null
-    : null;
-
   if (loading) {
     return (
-      <div className="flex flex-col h-screen items-center justify-center bg-savanna gap-4">
+      <div className="flex flex-col h-screen items-center justify-center gap-4 bg-gray-50">
         <div className="w-10 h-10 border-2 border-ochre border-t-transparent rounded-full animate-spin" />
-        <p className="text-gray-500 text-sm">Loading directory…</p>
+        <p className="text-gray-400 text-sm">Loading…</p>
       </div>
     );
   }
@@ -60,24 +53,22 @@ export default function HomePage() {
         onSubmitClick={() => setShowSubmitModal(true)}
       />
 
-      {/* Page content */}
       <main className="pt-14">
-        {activeTab === "merchants" ? (
+        {activeTab === "shop" && <ShopSection />}
+        {activeTab === "merchants" && (
           <MerchantsSection
             towns={towns}
             shops={shops}
             selectedTown={selectedTown}
             onTownSelect={handleTownSelect}
             onClearTown={() => setSelectedTown(null)}
-            onMerchantClick={setSelectedShop}
             onMapOpen={() => setShowMap(true)}
           />
-        ) : (
-          <ShopSection />
         )}
+        {activeTab === "jobs" && <JobsSection />}
       </main>
 
-      {/* Data source badge */}
+      {/* Data source indicator */}
       <div
         className="fixed bottom-4 right-4 flex items-center gap-1.5 bg-gray-900/80 backdrop-blur-sm text-white text-[10px] font-medium px-3 py-1.5 rounded-full shadow-lg"
         style={{ zIndex: 60 }}
@@ -96,15 +87,6 @@ export default function HomePage() {
           onClose={() => setShowMap(false)}
         />
       )}
-
-      {selectedShop && (
-        <MerchantModal
-          shop={selectedShop}
-          town={selectedTownForShop}
-          onClose={() => setSelectedShop(null)}
-        />
-      )}
-
       {showSubmitModal && (
         <SubmitMerchantModal
           towns={towns}

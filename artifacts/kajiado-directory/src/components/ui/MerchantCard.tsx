@@ -1,77 +1,92 @@
 "use client";
 
 import { Star, Phone, MessageCircle, Clock, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { Shop } from "@/lib/types";
-import { CATEGORY_COLORS, CATEGORY_ACCENT } from "@/lib/data";
+import { CATEGORY_COLORS } from "@/lib/data";
 
 interface MerchantCardProps {
   shop: Shop;
-  onClick: (shop: Shop) => void;
 }
 
-export default function MerchantCard({ shop, onClick }: MerchantCardProps) {
+export default function MerchantCard({ shop }: MerchantCardProps) {
   const catClass = CATEGORY_COLORS[shop.category] ?? "bg-gray-100 text-gray-600 border-gray-200";
-  const accent = CATEGORY_ACCENT[shop.category] ?? "#6b7280";
+  const accent = shop.color ?? "#6b7280";
 
   return (
-    <div
-      onClick={() => onClick(shop)}
-      className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden cursor-pointer"
+    <Link
+      href={`/merchant/${shop.id}`}
+      className="group block bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
     >
-      {/* Accent bar */}
-      <div className="h-1" style={{ background: accent }} />
-
-      <div className="p-4">
-        {/* Top row */}
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-              {shop.is_premium && (
-                <span className="inline-flex items-center gap-1 bg-ochre text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
-                  <Star className="w-2.5 h-2.5 fill-white" />
-                  PREMIUM
-                </span>
-              )}
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${catClass}`}>
-                {shop.category}
-              </span>
-            </div>
-            <h3 className="font-bold text-gray-800 text-base leading-tight group-hover:text-ochre transition-colors">
-              {shop.name}
-            </h3>
+      {/* Image */}
+      <div className="relative h-40 overflow-hidden bg-gray-100">
+        {shop.image_url ? (
+          <img
+            src={shop.image_url}
+            alt={shop.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center" style={{ background: `${accent}20` }}>
+            <div className="w-12 h-12 rounded-full opacity-30" style={{ background: accent }} />
           </div>
-          <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-ochre shrink-0 mt-1 transition-colors" />
+        )}
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        {/* Premium badge */}
+        {shop.is_premium && (
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-ochre text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
+            <Star className="w-2.5 h-2.5 fill-white" />
+            PREMIUM
+          </div>
+        )}
+        {/* Category on image */}
+        <div className="absolute bottom-2.5 left-2.5">
+          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-sm bg-white/90 ${catClass}`}>
+            {shop.category}
+          </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2 mb-1.5">
+          <h3 className="font-bold text-gray-800 text-base leading-tight group-hover:text-ochre transition-colors">
+            {shop.name}
+          </h3>
+          <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-ochre shrink-0 mt-0.5 transition-colors" />
         </div>
 
-        <p className="text-xs text-gray-500 leading-relaxed mb-3 line-clamp-2">
-          {shop.description}
-        </p>
+        {shop.tagline && (
+          <p className="text-xs font-medium mb-1.5" style={{ color: accent }}>{shop.tagline}</p>
+        )}
 
-        {/* Contact pills */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <p className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2">{shop.description}</p>
+
+        {/* Footer row */}
+        <div className="flex items-center justify-between gap-2">
           {shop.hours && (
-            <div className="flex items-center gap-1 text-[10px] text-gray-400">
-              <Clock className="w-3 h-3" />
-              <span>{shop.hours.split(",")[0]}</span>
+            <div className="flex items-center gap-1 text-[10px] text-gray-400 min-w-0">
+              <Clock className="w-3 h-3 shrink-0" />
+              <span className="truncate">{shop.hours.split(",")[0]}</span>
             </div>
           )}
-          <div className="flex items-center gap-1.5 ml-auto">
+          <div className="flex items-center gap-1.5 ml-auto shrink-0">
             {shop.phone && (
               <a
                 href={`tel:${shop.phone.replace(/\s/g, "")}`}
-                onClick={(e) => e.stopPropagation()}
-                className="w-7 h-7 rounded-lg bg-acacia/10 hover:bg-acacia/20 flex items-center justify-center transition-colors"
+                onClick={(e) => e.preventDefault()}
+                className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                style={{ background: `${accent}15` }}
               >
-                <Phone className="w-3.5 h-3.5 text-acacia" />
+                <Phone className="w-3.5 h-3.5" style={{ color: accent }} />
               </a>
             )}
             {shop.whatsapp && (
               <a
                 href={`https://wa.me/${shop.whatsapp.replace(/[^0-9]/g, "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="w-7 h-7 rounded-lg bg-[#25D366]/10 hover:bg-[#25D366]/20 flex items-center justify-center transition-colors"
+                onClick={(e) => e.preventDefault()}
+                className="w-7 h-7 rounded-lg bg-[#25D366]/10 flex items-center justify-center transition-colors"
               >
                 <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
               </a>
@@ -79,6 +94,6 @@ export default function MerchantCard({ shop, onClick }: MerchantCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
