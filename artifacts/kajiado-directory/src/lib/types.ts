@@ -19,6 +19,18 @@ export interface Shop {
   hours?: string | null;
 }
 
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  unit: string;
+  category: string;
+  in_stock: boolean;
+  badge?: string | null;
+  whatsapp_order?: string;
+}
+
 export interface SubmitShopPayload {
   town_id: string;
   name: string;
