@@ -3,9 +3,8 @@ import "./globals.css";
 import Providers from "./Providers";
 
 export const metadata: Metadata = {
-  title: "Kajiado Directory — Virtual Stroll",
-  description:
-    "Explore towns and merchants across Kajiado County, Kenya on an interactive satellite map.",
+  title: "Kajiado Mtaani",
+  description: "Explore towns, merchants, jobs and shop local goods across Kajiado County, Kenya.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

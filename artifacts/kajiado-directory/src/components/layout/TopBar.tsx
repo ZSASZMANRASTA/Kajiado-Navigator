@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, MapPin, ShoppingCart } from "lucide-react";
+import { Menu, ShoppingCart } from "lucide-react";
 import { useCart } from "@/lib/cart";
 
 interface TopBarProps {
@@ -20,12 +20,7 @@ export default function TopBar({ onMenuOpen, onCartOpen }: TopBarProps) {
         <Menu className="w-5 h-5" />
       </button>
 
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-full bg-ochre flex items-center justify-center">
-          <MapPin className="w-3.5 h-3.5 text-white" />
-        </div>
-        <p className="font-extrabold text-gray-800 text-sm">Kajiado</p>
-      </div>
+      <p className="font-extrabold text-gray-800 text-base tracking-tight">Kajiado Mtaani</p>
 
       <button
         onClick={onCartOpen}
