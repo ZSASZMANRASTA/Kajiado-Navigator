@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { CartProvider, useCart } from "@/lib/cart";
+import { useCart } from "@/lib/cart";
 import Navbar, { Tab } from "@/components/ui/Navbar";
 import MerchantsSection from "@/components/ui/MerchantsSection";
 import ShopSection from "@/components/ui/ShopSection";
@@ -9,13 +9,13 @@ import JobsSection from "@/components/ui/JobsSection";
 import CartDrawer from "@/components/ui/CartDrawer";
 import SubmitMerchantModal from "@/components/ui/SubmitMerchantModal";
 import MapModal from "@/components/ui/MapModal";
-import { Town, Shop } from "@/lib/types";
+import { Town } from "@/lib/types";
 import { fetchTowns, fetchShops, usingLiveData } from "@/lib/supabase";
 
-function AppContent() {
+export default function HomePage() {
   const { itemCount } = useCart();
   const [towns, setTowns] = useState<Town[]>([]);
-  const [shops, setShops] = useState<Shop[]>([]);
+  const [shops, setShops] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [activeTab, setActiveTab] = useState<Tab>("shop");
@@ -74,7 +74,6 @@ function AppContent() {
         {activeTab === "jobs" && <JobsSection />}
       </main>
 
-      {/* Data badge */}
       <div
         className="fixed bottom-4 right-4 flex items-center gap-1.5 bg-gray-900/80 backdrop-blur-sm text-white text-[10px] font-medium px-3 py-1.5 rounded-full shadow-lg"
         style={{ zIndex: 60 }}
@@ -103,13 +102,5 @@ function AppContent() {
         />
       )}
     </div>
-  );
-}
-
-export default function HomePage() {
-  return (
-    <CartProvider>
-      <AppContent />
-    </CartProvider>
   );
 }
