@@ -1,22 +1,26 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { CartProvider, useCart } from "@/lib/cart";
 import Navbar, { Tab } from "@/components/ui/Navbar";
 import MerchantsSection from "@/components/ui/MerchantsSection";
 import ShopSection from "@/components/ui/ShopSection";
 import JobsSection from "@/components/ui/JobsSection";
+import CartDrawer from "@/components/ui/CartDrawer";
 import SubmitMerchantModal from "@/components/ui/SubmitMerchantModal";
 import MapModal from "@/components/ui/MapModal";
 import { Town, Shop } from "@/lib/types";
 import { fetchTowns, fetchShops, usingLiveData } from "@/lib/supabase";
 
-export default function HomePage() {
+function AppContent() {
+  const { itemCount } = useCart();
   const [towns, setTowns] = useState<Town[]>([]);
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [activeTab, setActiveTab] = useState<Tab>("shop");
   const [selectedTown, setSelectedTown] = useState<Town | null>(null);
+  const [showCart, setShowCart] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
@@ -51,10 +55,12 @@ export default function HomePage() {
         onTabChange={setActiveTab}
         onMapToggle={() => setShowMap(true)}
         onSubmitClick={() => setShowSubmitModal(true)}
+        cartCount={itemCount}
+        onCartOpen={() => setShowCart(true)}
       />
 
       <main className="pt-14">
-        {activeTab === "shop" && <ShopSection />}
+        {activeTab === "shop" && <ShopSection onCartOpen={() => setShowCart(true)} />}
         {activeTab === "merchants" && (
           <MerchantsSection
             towns={towns}
@@ -68,7 +74,7 @@ export default function HomePage() {
         {activeTab === "jobs" && <JobsSection />}
       </main>
 
-      {/* Data source indicator */}
+      {/* Data badge */}
       <div
         className="fixed bottom-4 right-4 flex items-center gap-1.5 bg-gray-900/80 backdrop-blur-sm text-white text-[10px] font-medium px-3 py-1.5 rounded-full shadow-lg"
         style={{ zIndex: 60 }}
@@ -77,7 +83,8 @@ export default function HomePage() {
         {usingLiveData ? "Live data" : "Demo data"}
       </div>
 
-      {/* Modals */}
+      {showCart && <CartDrawer onClose={() => setShowCart(false)} />}
+
       {showMap && (
         <MapModal
           towns={towns}
@@ -87,6 +94,7 @@ export default function HomePage() {
           onClose={() => setShowMap(false)}
         />
       )}
+
       {showSubmitModal && (
         <SubmitMerchantModal
           towns={towns}
@@ -95,5 +103,13 @@ export default function HomePage() {
         />
       )}
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <CartProvider>
+      <AppContent />
+    </CartProvider>
   );
 }

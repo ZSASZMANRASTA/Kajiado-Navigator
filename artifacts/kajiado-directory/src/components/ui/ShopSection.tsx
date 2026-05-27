@@ -1,22 +1,21 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ShoppingBag, MessageCircle, Truck, Shield, RefreshCw } from "lucide-react";
+import { ShoppingBag, Truck, Shield, RefreshCw } from "lucide-react";
 import { PRODUCTS, PRODUCT_CATEGORIES } from "@/lib/data";
 import ProductCard from "./ProductCard";
 
-export default function ShopSection() {
+interface ShopSectionProps {
+  onCartOpen: () => void;
+}
+
+export default function ShopSection({ onCartOpen }: ShopSectionProps) {
   const [activeCategory, setActiveCategory] = useState("All");
 
   const displayProducts = useMemo(() => {
     if (activeCategory === "All") return PRODUCTS;
     return PRODUCTS.filter((p) => p.category === activeCategory);
   }, [activeCategory]);
-
-  const handleBulkWhatsApp = () => {
-    const msg = encodeURIComponent("Hi! I'd like to enquire about bulk orders from your shop.");
-    window.open(`https://wa.me/254712345678?text=${msg}`, "_blank");
-  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
@@ -30,27 +29,16 @@ export default function ShopSection() {
                 <ShoppingBag className="w-3.5 h-3.5" />
                 Wholesale-Sourced Goods
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight mb-2">
-                Our Shop
-              </h2>
+              <h2 className="text-2xl sm:text-3xl font-extrabold leading-tight mb-2">Our Shop</h2>
               <p className="text-white/80 text-sm max-w-md">
-                Quality goods sourced directly from trusted Kenyan wholesalers. Better prices, no middlemen — order on WhatsApp and we deliver.
+                Quality goods sourced directly from trusted Kenyan wholesalers. Add to cart and we deliver to your door across Kajiado County.
               </p>
             </div>
-            <button
-              onClick={handleBulkWhatsApp}
-              className="flex items-center gap-2 bg-white text-ochre font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-white/90 transition-colors shrink-0"
-            >
-              <MessageCircle className="w-4 h-4" />
-              Bulk Order Enquiry
-            </button>
           </div>
-
-          {/* Trust signals */}
           <div className="flex items-center gap-4 mt-5 flex-wrap">
             <div className="flex items-center gap-1.5 text-white/70 text-xs">
               <Truck className="w-3.5 h-3.5" />
-              <span>Delivery in Kajiado</span>
+              <span>Delivery across Kajiado</span>
             </div>
             <div className="flex items-center gap-1.5 text-white/70 text-xs">
               <Shield className="w-3.5 h-3.5" />
@@ -81,32 +69,22 @@ export default function ShopSection() {
         ))}
       </div>
 
-      {/* Products count */}
       <p className="text-xs text-gray-400 mb-4">
         {displayProducts.length} product{displayProducts.length !== 1 ? "s" : ""}
         {activeCategory !== "All" && ` in ${activeCategory}`}
       </p>
 
-      {/* Product grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {displayProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product.id} product={product} onCartOpen={onCartOpen} />
         ))}
       </div>
 
-      {/* Footer CTA */}
-      <div className="mt-10 rounded-2xl border border-[#25D366]/30 bg-[#25D366]/5 p-5 flex items-center justify-between gap-4 flex-wrap">
+      <div className="mt-10 rounded-2xl border border-gray-200 bg-gray-50 p-5 flex items-center justify-between gap-4 flex-wrap">
         <div>
           <p className="font-bold text-gray-800 text-sm mb-0.5">Can't find what you need?</p>
-          <p className="text-xs text-gray-500">We source on request. Message us and we'll find it.</p>
+          <p className="text-xs text-gray-500">We source on request — contact a merchant in our directory.</p>
         </div>
-        <button
-          onClick={handleBulkWhatsApp}
-          className="flex items-center gap-2 bg-[#25D366] text-white font-semibold text-sm px-4 py-2.5 rounded-xl hover:bg-[#20be5a] transition-colors shrink-0"
-        >
-          <MessageCircle className="w-4 h-4" />
-          WhatsApp Us
-        </button>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Map, Plus, ShoppingBag, Store, Briefcase } from "lucide-react";
+import { MapPin, Map, Plus, ShoppingBag, Store, Briefcase, ShoppingCart } from "lucide-react";
 
 export type Tab = "shop" | "merchants" | "jobs";
 
@@ -9,6 +9,8 @@ interface NavbarProps {
   onTabChange: (tab: Tab) => void;
   onMapToggle: () => void;
   onSubmitClick: () => void;
+  cartCount?: number;
+  onCartOpen?: () => void;
 }
 
 const TABS: { id: Tab; label: string; icon: React.FC<{ className?: string }> }[] = [
@@ -17,7 +19,9 @@ const TABS: { id: Tab; label: string; icon: React.FC<{ className?: string }> }[]
   { id: "jobs", label: "Jobs", icon: Briefcase },
 ];
 
-export default function Navbar({ activeTab, onTabChange, onMapToggle, onSubmitClick }: NavbarProps) {
+export default function Navbar({
+  activeTab, onTabChange, onMapToggle, onSubmitClick, cartCount = 0, onCartOpen,
+}: NavbarProps) {
   return (
     <header className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 shadow-sm" style={{ zIndex: 100 }}>
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
@@ -43,7 +47,7 @@ export default function Navbar({ activeTab, onTabChange, onMapToggle, onSubmitCl
                   ? id === "shop"
                     ? "bg-ochre text-white shadow-sm"
                     : id === "jobs"
-                    ? "bg-acacia text-white shadow-sm"
+                    ? "bg-gray-800 text-white shadow-sm"
                     : "bg-white text-gray-800 shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
               }`}
@@ -63,13 +67,26 @@ export default function Navbar({ activeTab, onTabChange, onMapToggle, onSubmitCl
             <Map className="w-3.5 h-3.5" />
             Map
           </button>
+
+          {/* Cart button */}
+          <button
+            onClick={onCartOpen}
+            className="relative w-9 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-600 hover:border-ochre hover:text-ochre transition-all"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-ochre text-white text-[9px] font-extrabold rounded-full flex items-center justify-center">
+                {cartCount > 9 ? "9+" : cartCount}
+              </span>
+            )}
+          </button>
+
           <button
             onClick={onSubmitClick}
             className="flex items-center gap-1.5 text-xs font-semibold bg-gray-800 text-white px-3 py-1.5 rounded-xl hover:bg-gray-700 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">List Business</span>
-            <span className="sm:hidden">+</span>
           </button>
         </div>
       </div>
