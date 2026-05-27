@@ -1,6 +1,7 @@
 "use client";
 
-import { ShoppingBag, Store, Briefcase, ShoppingCart, MapPin, X, Settings, Map } from "lucide-react";
+import { useRef, useState } from "react";
+import { ShoppingBag, Store, Briefcase, ShoppingCart, MapPin, X, Map } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { Tab } from "./types";
 
@@ -20,21 +21,61 @@ const NAV: { id: Tab; label: string; icon: React.FC<{ className?: string }>; acc
   { id: "jobs", label: "Jobs", icon: Briefcase },
 ];
 
-export default function Sidebar({ activeTab, onTabChange, onCartOpen, onMapOpen, onAdminOpen, mobileOpen, onMobileClose }: SidebarProps) {
+const SECRET_TAPS = 5;
+
+export default function Sidebar({
+  activeTab, onTabChange, onCartOpen, onMapOpen, onAdminOpen, mobileOpen, onMobileClose,
+}: SidebarProps) {
   const { itemCount } = useCart();
+  const tapCount = useRef(0);
+  const tapTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [tapDots, setTapDots] = useState(0);
+
+  const handleLogoBang = () => {
+    tapCount.current += 1;
+    const n = tapCount.current;
+    setTapDots(n);
+    clearTimeout(tapTimer.current);
+    if (n >= SECRET_TAPS) {
+      tapCount.current = 0;
+      setTapDots(0);
+      onAdminOpen();
+      onMobileClose();
+    } else {
+      tapTimer.current = setTimeout(() => {
+        tapCount.current = 0;
+        setTapDots(0);
+      }, 1800);
+    }
+  };
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      {/* Brand */}
+      {/* Brand — secret tap zone */}
       <div className="px-5 py-5 border-b border-gray-100">
-        <div className="flex items-center gap-3">
+        <button
+          onClick={handleLogoBang}
+          className="flex items-center gap-3 w-full text-left select-none focus:outline-none"
+          aria-label="Kajiado Directory"
+        >
           <div className="w-9 h-9 rounded-full bg-ochre flex items-center justify-center shrink-0">
-            <MapPin className="w-4.5 h-4.5 text-white" />
+            <MapPin className="w-4 h-4 text-white" />
           </div>
           <div>
             <p className="font-extrabold text-gray-800 text-sm leading-tight">Kajiado Directory</p>
             <p className="text-[10px] text-gray-400 leading-tight">Kajiado County, Kenya</p>
           </div>
+        </button>
+        {/* Subtle dot progress — only visible while tapping */}
+        <div className="flex items-center gap-1 mt-2 h-2 px-0.5">
+          {tapDots > 0 && Array.from({ length: SECRET_TAPS }).map((_, i) => (
+            <div
+              key={i}
+              className={`rounded-full transition-all duration-200 ${
+                i < tapDots ? "w-1.5 h-1.5 bg-ochre/60" : "w-1 h-1 bg-gray-200"
+              }`}
+            />
+          ))}
         </div>
       </div>
 
@@ -61,7 +102,7 @@ export default function Sidebar({ activeTab, onTabChange, onCartOpen, onMapOpen,
           );
         })}
 
-        {/* Cart */}
+        {/* Cart + Map */}
         <div className="pt-3 mt-3 border-t border-gray-100">
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">Shopping</p>
           <button
@@ -93,16 +134,9 @@ export default function Sidebar({ activeTab, onTabChange, onCartOpen, onMapOpen,
         </div>
       </nav>
 
-      {/* Admin */}
-      <div className="px-3 pb-5 border-t border-gray-100 pt-3">
-        <button
-          onClick={() => { onAdminOpen(); onMobileClose(); }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all"
-        >
-          <Settings className="w-4 h-4 text-gray-400 shrink-0" />
-          Admin Panel
-        </button>
-        <p className="text-[10px] text-gray-300 px-3 mt-2">© 2025 Kajiado Directory</p>
+      {/* Footer */}
+      <div className="px-5 pb-5">
+        <p className="text-[10px] text-gray-300">© 2025 Kajiado Directory</p>
       </div>
     </div>
   );

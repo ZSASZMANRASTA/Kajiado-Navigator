@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   Lock, Plus, Pencil, Trash2, X, Check, Package,
-  ClipboardList, ChevronDown, AlertCircle
+  ClipboardList, ChevronDown, AlertCircle, Upload, Link2, XCircle
 } from "lucide-react";
 import { useStore, Order } from "@/lib/products-store";
 import { Product } from "@/lib/types";
@@ -16,6 +16,29 @@ const BLANK_PRODUCT: Omit<Product, "id"> = {
   category: "Dry Goods", image_url: "", in_stock: true, badge: "",
 };
 
+function resizeToDataURL(file: File, maxPx = 900): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("canvas ctx"));
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.onerror = reject;
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 function ProductForm({
   initial, onSave, onCancel,
 }: {
@@ -25,6 +48,26 @@ function ProductForm({
 }) {
   const [form, setForm] = useState(initial);
   const [err, setErr] = useState<Record<string, string>>({});
+  const [imgMode, setImgMode] = useState<"upload" | "url">(
+    initial.image_url?.startsWith("http") ? "url" : "upload"
+  );
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const dataUrl = await resizeToDataURL(file);
+      setForm((f) => ({ ...f, image_url: dataUrl }));
+    } catch {
+      alert("Could not process image. Please try a different file.");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }, []);
 
   const set = (k: keyof typeof form, v: unknown) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -105,14 +148,67 @@ function ProductForm({
         </div>
       </div>
 
-      {/* Image URL */}
+      {/* Image */}
       <div>
-        <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Image URL <span className="font-normal normal-case text-gray-400">(optional)</span></label>
-        <input value={form.image_url ?? ""} onChange={(e) => set("image_url", e.target.value)}
-          placeholder="https://images.unsplash.com/…"
-          className="mt-1 w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-acacia/30 text-gray-800" />
-        {form.image_url && (
-          <img src={form.image_url} alt="" className="mt-2 w-full h-24 object-cover rounded-xl border border-gray-200" onError={(e) => (e.currentTarget.style.display = "none")} />
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+            Image <span className="font-normal normal-case text-gray-400">(optional)</span>
+          </label>
+          <div className="flex gap-1">
+            <button type="button" onClick={() => setImgMode("upload")}
+              className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border transition-all ${imgMode === "upload" ? "bg-acacia/10 text-acacia border-acacia/30" : "bg-white text-gray-400 border-gray-200"}`}>
+              <Upload className="w-2.5 h-2.5" /> Upload
+            </button>
+            <button type="button" onClick={() => setImgMode("url")}
+              className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border transition-all ${imgMode === "url" ? "bg-acacia/10 text-acacia border-acacia/30" : "bg-white text-gray-400 border-gray-200"}`}>
+              <Link2 className="w-2.5 h-2.5" /> URL
+            </button>
+          </div>
+        </div>
+
+        {imgMode === "upload" ? (
+          <div>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            {form.image_url && !form.image_url.startsWith("http") ? (
+              <div className="relative">
+                <img src={form.image_url} alt="" className="w-full h-32 object-cover rounded-xl border border-gray-200" />
+                <button type="button"
+                  onClick={() => { set("image_url", ""); if (fileRef.current) fileRef.current.value = ""; }}
+                  className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full shadow flex items-center justify-center">
+                  <XCircle className="w-4 h-4 text-gray-500" />
+                </button>
+                <button type="button" onClick={() => fileRef.current?.click()}
+                  className="mt-1.5 w-full text-xs text-acacia font-semibold py-1 text-center hover:underline">
+                  Change photo
+                </button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+                className="w-full flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 hover:border-acacia/40 rounded-xl py-5 transition-colors disabled:opacity-60">
+                {uploading
+                  ? <span className="w-5 h-5 border-2 border-acacia border-t-transparent rounded-full animate-spin" />
+                  : <Upload className="w-5 h-5 text-gray-300" />}
+                <span className="text-xs text-gray-400">{uploading ? "Processing…" : "Tap to choose photo from device"}</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          <div>
+            <input value={form.image_url?.startsWith("http") ? (form.image_url ?? "") : ""}
+              onChange={(e) => set("image_url", e.target.value)}
+              placeholder="https://images.unsplash.com/…"
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-acacia/30 text-gray-800" />
+            {form.image_url?.startsWith("http") && (
+              <img src={form.image_url} alt="" className="mt-2 w-full h-24 object-cover rounded-xl border border-gray-200"
+                onError={(e) => (e.currentTarget.style.display = "none")} />
+            )}
+          </div>
         )}
       </div>
 
