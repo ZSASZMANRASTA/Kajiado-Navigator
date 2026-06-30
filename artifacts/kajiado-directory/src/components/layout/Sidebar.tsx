@@ -1,68 +1,51 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ShoppingBag, Store, Briefcase, ShoppingCart, MapPin, X, Map, Truck, Shield, RefreshCw } from "lucide-react";
+import {
+  ShoppingBag, Store, Briefcase, ShoppingCart,
+  MapPin, X, Map, Truck, Shield, RefreshCw,
+} from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { Tab } from "./types";
 
-interface SidebarProps {
-  activeTab: Tab;
-  onTabChange: (tab: Tab) => void;
-  onCartOpen: () => void;
-  onMapOpen: () => void;
-  onAdminOpen: () => void;
-  mobileOpen: boolean;
-  onMobileClose: () => void;
-}
-
 const NAV: { id: Tab; label: string; icon: React.FC<{ className?: string }>; accent?: string }[] = [
-  { id: "shop", label: "Our Shop", icon: ShoppingBag, accent: "text-ochre" },
+  { id: "shop",      label: "Our Shop",  icon: ShoppingBag, accent: "text-ochre" },
   { id: "merchants", label: "Merchants", icon: Store },
-  { id: "jobs", label: "Jobs", icon: Briefcase },
+  { id: "jobs",      label: "Jobs",      icon: Briefcase },
+];
+
+const SHOP_INFO = [
+  { icon: Truck,    text: "Delivery across Kajiado" },
+  { icon: Shield,   text: "Trusted suppliers" },
+  { icon: RefreshCw, text: "Weekly restocking" },
 ];
 
 const SECRET_TAPS = 5;
 
-const SHOP_INFO = [
-  { icon: Truck, text: "Delivery across Kajiado" },
-  { icon: Shield, text: "Trusted suppliers" },
-  { icon: RefreshCw, text: "Weekly restocking" },
-];
+/* ── Inner content — a proper top-level component so hooks are valid ── */
+interface SidebarInnerProps {
+  activeTab: Tab;
+  itemCount: number;
+  tapDots: number;
+  onLogoTap: () => void;
+  onTabChange: (tab: Tab) => void;
+  onCartOpen: () => void;
+  onMapOpen: () => void;
+  onMobileClose: () => void;
+}
 
-export default function Sidebar({
-  activeTab, onTabChange, onCartOpen, onMapOpen, onAdminOpen, mobileOpen, onMobileClose,
-}: SidebarProps) {
-  const { itemCount } = useCart();
-  const tapCount = useRef(0);
-  const tapTimer = useRef<ReturnType<typeof setTimeout>>();
-  const [tapDots, setTapDots] = useState(0);
-
-  const handleLogoBang = () => {
-    tapCount.current += 1;
-    const n = tapCount.current;
-    setTapDots(n);
-    clearTimeout(tapTimer.current);
-    if (n >= SECRET_TAPS) {
-      tapCount.current = 0;
-      setTapDots(0);
-      onAdminOpen();
-      onMobileClose();
-    } else {
-      tapTimer.current = setTimeout(() => {
-        tapCount.current = 0;
-        setTapDots(0);
-      }, 1800);
-    }
-  };
-
-  const SidebarContent = () => (
+function SidebarInner({
+  activeTab, itemCount, tapDots,
+  onLogoTap, onTabChange, onCartOpen, onMapOpen, onMobileClose,
+}: SidebarInnerProps) {
+  return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Brand — secret tap zone */}
       <div className="px-5 py-5 border-b border-gray-100 shrink-0">
         <button
-          onClick={handleLogoBang}
+          onClick={onLogoTap}
           className="flex items-center gap-3 w-full text-left select-none focus:outline-none"
-          aria-label="Kajiado Mtaani"
+          aria-label="Kajiado Mtaani home"
         >
           <div className="w-9 h-9 rounded-full bg-ochre flex items-center justify-center shrink-0">
             <MapPin className="w-4 h-4 text-white" />
@@ -72,9 +55,15 @@ export default function Sidebar({
             <p className="text-[10px] text-gray-400 leading-tight">Kajiado County, Kenya</p>
           </div>
         </button>
+        {/* Tap-progress dots — only visible while tapping */}
         <div className="flex items-center gap-1 mt-2 h-2 px-0.5">
           {tapDots > 0 && Array.from({ length: SECRET_TAPS }).map((_, i) => (
-            <div key={i} className={`rounded-full transition-all duration-200 ${i < tapDots ? "w-1.5 h-1.5 bg-ochre/60" : "w-1 h-1 bg-gray-200"}`} />
+            <div
+              key={i}
+              className={`rounded-full transition-all duration-200 ${
+                i < tapDots ? "w-1.5 h-1.5 bg-ochre/60" : "w-1 h-1 bg-gray-200"
+              }`}
+            />
           ))}
         </div>
       </div>
@@ -101,10 +90,10 @@ export default function Sidebar({
         })}
       </nav>
 
-      {/* Shop info panel — visible when Shop is active */}
+      {/* Shop info panel */}
       {activeTab === "shop" && (
-        <div className="mx-3 mb-3 rounded-2xl bg-ochre/8 border border-ochre/15 px-4 py-3 shrink-0">
-          <p className="text-[10px] font-extrabold text-ochre uppercase tracking-widest mb-2.5">About Our Shop</p>
+        <div className="mx-3 mb-3 rounded-2xl bg-ochre/[0.08] border border-ochre/15 px-4 py-3 shrink-0">
+          <p className="text-[10px] font-extrabold text-ochre uppercase tracking-widest mb-2">About Our Shop</p>
           <p className="text-[11px] text-gray-600 leading-snug mb-3">
             Quality goods sourced from trusted Kenyan wholesalers. Add to cart and we deliver across Kajiado County.
           </p>
@@ -156,23 +145,72 @@ export default function Sidebar({
       </div>
     </div>
   );
+}
+
+/* ── Main export ─────────────────────────────────────────────────────── */
+interface SidebarProps {
+  activeTab: Tab;
+  onTabChange: (tab: Tab) => void;
+  onCartOpen: () => void;
+  onMapOpen: () => void;
+  onAdminOpen: () => void;
+  mobileOpen: boolean;
+  onMobileClose: () => void;
+}
+
+export default function Sidebar({
+  activeTab, onTabChange, onCartOpen, onMapOpen, onAdminOpen, mobileOpen, onMobileClose,
+}: SidebarProps) {
+  const { itemCount } = useCart();
+  const tapCount = useRef(0);
+  const tapTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [tapDots, setTapDots] = useState(0);
+
+  const handleLogoTap = () => {
+    tapCount.current += 1;
+    const n = tapCount.current;
+    setTapDots(n);
+    clearTimeout(tapTimer.current);
+    if (n >= SECRET_TAPS) {
+      tapCount.current = 0;
+      setTapDots(0);
+      onAdminOpen();
+      onMobileClose();
+    } else {
+      tapTimer.current = setTimeout(() => {
+        tapCount.current = 0;
+        setTapDots(0);
+      }, 1800);
+    }
+  };
+
+  const innerProps: SidebarInnerProps = {
+    activeTab, itemCount, tapDots,
+    onLogoTap: handleLogoTap,
+    onTabChange, onCartOpen, onMapOpen, onMobileClose,
+  };
 
   return (
     <>
+      {/* Desktop — always visible */}
       <aside className="hidden sm:flex flex-col fixed top-0 left-0 h-full w-60 bg-white border-r border-gray-100 shadow-sm z-50">
-        <SidebarContent />
+        <SidebarInner {...innerProps} />
       </aside>
 
+      {/* Mobile — overlay drawer */}
       {mobileOpen && (
         <div className="sm:hidden fixed inset-0 z-[150]">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onMobileClose} />
           <aside className="absolute left-0 top-0 h-full w-72 bg-white shadow-2xl">
             <div className="flex items-center justify-end px-4 pt-4">
-              <button onClick={onMobileClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+              <button
+                onClick={onMobileClose}
+                className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"
+              >
                 <X className="w-4 h-4 text-gray-600" />
               </button>
             </div>
-            <SidebarContent />
+            <SidebarInner {...innerProps} />
           </aside>
         </div>
       )}

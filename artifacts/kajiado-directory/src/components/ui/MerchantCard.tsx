@@ -31,16 +31,13 @@ export default function MerchantCard({ shop }: MerchantCardProps) {
             <div className="w-12 h-12 rounded-full opacity-30" style={{ background: accent }} />
           </div>
         )}
-        {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-        {/* Premium badge */}
         {shop.is_premium && (
           <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-ochre text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
             <Star className="w-2.5 h-2.5 fill-white" />
             PREMIUM
           </div>
         )}
-        {/* Category on image */}
         <div className="absolute bottom-2.5 left-2.5">
           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border backdrop-blur-sm bg-white/90 ${catClass}`}>
             {shop.category}
@@ -63,7 +60,7 @@ export default function MerchantCard({ shop }: MerchantCardProps) {
 
         <p className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2">{shop.description}</p>
 
-        {/* Footer row */}
+        {/* Footer row — use div/span instead of <a> to avoid nested anchor tags */}
         <div className="flex items-center justify-between gap-2">
           {shop.hours && (
             <div className="flex items-center gap-1 text-[10px] text-gray-400 min-w-0">
@@ -73,23 +70,23 @@ export default function MerchantCard({ shop }: MerchantCardProps) {
           )}
           <div className="flex items-center gap-1.5 ml-auto shrink-0">
             {shop.phone && (
-              <a
-                href={`tel:${shop.phone.replace(/\s/g, "")}`}
-                onClick={(e) => e.preventDefault()}
-                className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+              <span
+                role="img"
+                aria-label="Call"
+                className="w-7 h-7 rounded-lg flex items-center justify-center"
                 style={{ background: `${accent}15` }}
               >
                 <Phone className="w-3.5 h-3.5" style={{ color: accent }} />
-              </a>
+              </span>
             )}
             {shop.whatsapp && (
-              <a
-                href={`https://wa.me/${shop.whatsapp.replace(/[^0-9]/g, "")}`}
-                onClick={(e) => e.preventDefault()}
-                className="w-7 h-7 rounded-lg bg-[#25D366]/10 flex items-center justify-center transition-colors"
+              <span
+                role="img"
+                aria-label="WhatsApp"
+                className="w-7 h-7 rounded-lg bg-[#25D366]/10 flex items-center justify-center"
               >
                 <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
-              </a>
+              </span>
             )}
           </div>
         </div>
