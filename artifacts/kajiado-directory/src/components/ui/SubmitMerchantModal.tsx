@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { X, CheckCircle, Loader2 } from "lucide-react";
 import { Town } from "@/lib/types";
 import { ALL_CATEGORIES } from "@/lib/data";
-import { submitShop } from "@/lib/supabase";
+import { useStore } from "@/lib/products-store";
 
 interface SubmitMerchantModalProps {
   towns: Town[];
@@ -29,6 +29,7 @@ export default function SubmitMerchantModal({
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { addShop } = useStore();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -43,23 +44,27 @@ export default function SubmitMerchantModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.name.trim() || !form.description.trim()) {
+      setError("Please fill in the required fields.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
-    const result = await submitShop({
+    // Simulate a short review delay, then add to the live directory (unlisted as premium, pending admin curation).
+    await new Promise((r) => setTimeout(r, 700));
+    addShop({
       town_id: form.town_id,
-      name: form.name,
-      description: form.description,
+      name: form.name.trim(),
+      description: form.description.trim(),
       category: form.category,
       phone: form.phone || undefined,
       whatsapp: form.whatsapp || undefined,
       hours: form.hours || undefined,
+      is_premium: false,
+      image_url: null,
     });
     setSubmitting(false);
-    if (result.success) {
-      setSubmitted(true);
-    } else {
-      setError(result.error ?? "Something went wrong. Please try again.");
-    }
+    setSubmitted(true);
   };
 
   return (

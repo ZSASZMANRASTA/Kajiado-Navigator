@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { MapPin, Store, Search, X, SlidersHorizontal, ArrowLeft, Map } from "lucide-react";
+import { MapPin, Store, Search, X, SlidersHorizontal, ArrowLeft, Map, Plus } from "lucide-react";
 import { Town } from "@/lib/types";
 import { ALL_CATEGORIES, CATEGORY_COLORS } from "@/lib/data";
 import { useStore } from "@/lib/products-store";
@@ -13,9 +13,10 @@ interface MerchantsSectionProps {
   onTownSelect: (town: Town) => void;
   onClearTown: () => void;
   onMapOpen: () => void;
+  onSubmitOpen: () => void;
 }
 
-export default function MerchantsSection({ towns, selectedTown, onTownSelect, onClearTown, onMapOpen }: MerchantsSectionProps) {
+export default function MerchantsSection({ towns, selectedTown, onTownSelect, onClearTown, onMapOpen, onSubmitOpen }: MerchantsSectionProps) {
   const { shops } = useStore();
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -31,6 +32,7 @@ export default function MerchantsSection({ towns, selectedTown, onTownSelect, on
   }, [shops, selectedTown, activeCategory, query]);
 
   const isFiltering = query !== "" || activeCategory !== null;
+  const selectedTownId = selectedTown?.id ?? null;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
@@ -43,6 +45,10 @@ export default function MerchantsSection({ towns, selectedTown, onTownSelect, on
               </h2>
               <p className="text-sm text-gray-400 mt-1.5">{shops.length} merchants across {towns.length} towns</p>
             </div>
+            <button onClick={onSubmitOpen}
+              className="shrink-0 flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl bg-ochre text-white hover:bg-ochre/90 transition-colors shadow-sm">
+              <Plus className="w-3.5 h-3.5" /><span className="hidden sm:inline">List Your Business</span><span className="sm:hidden">List</span>
+            </button>
           </div>
 
           {/* Town pills + Map button */}
@@ -55,7 +61,7 @@ export default function MerchantsSection({ towns, selectedTown, onTownSelect, on
               const count = shops.filter(s => s.town_id === town.id).length;
               return (
                 <button key={town.id} onClick={() => onTownSelect(town)}
-                  className={`shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${selectedTown?.id === town.id ? "bg-acacia text-white border-acacia" : "bg-white text-gray-600 border-gray-200 hover:border-acacia/50"}`}>
+                  className={`shrink-0 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${selectedTownId === town.id ? "bg-acacia text-white border-acacia" : "bg-white text-gray-600 border-gray-200 hover:border-acacia/50"}`}>
                   <MapPin className="w-3 h-3" />{town.name}
                   {count > 0 && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600">{count}</span>}
                 </button>
@@ -96,15 +102,21 @@ export default function MerchantsSection({ towns, selectedTown, onTownSelect, on
           <button onClick={() => { onClearTown(); setQuery(""); setActiveCategory(null); }} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-ochre transition-colors mb-3">
             <ArrowLeft className="w-4 h-4" /> All Towns
           </button>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-ochre/10 flex items-center justify-center"><MapPin className="w-5 h-5 text-ochre" /></div>
-            <div>
-              <h2 className="text-xl font-extrabold text-gray-800">{selectedTown.name}</h2>
-              <p className="text-sm text-gray-400">
-                {shops.filter(s => s.town_id === selectedTown.id).length} merchants
-                <button onClick={onMapOpen} className="ml-2 text-acacia hover:underline text-xs font-semibold">View on map →</button>
-              </p>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-ochre/10 flex items-center justify-center"><MapPin className="w-5 h-5 text-ochre" /></div>
+              <div>
+                <h2 className="text-xl font-extrabold text-gray-800">{selectedTown.name}</h2>
+                <p className="text-sm text-gray-400">
+                  {shops.filter(s => s.town_id === selectedTown.id).length} merchants
+                  <button onClick={onMapOpen} className="ml-2 text-acacia hover:underline text-xs font-semibold">View on map →</button>
+                </p>
+              </div>
             </div>
+            <button onClick={onSubmitOpen}
+              className="shrink-0 flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl bg-ochre text-white hover:bg-ochre/90 transition-colors shadow-sm">
+              <Plus className="w-3.5 h-3.5" /><span className="hidden sm:inline">List Your Business</span><span className="sm:hidden">List</span>
+            </button>
           </div>
         </div>
       )}

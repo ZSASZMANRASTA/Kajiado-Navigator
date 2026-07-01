@@ -1,0 +1,2 @@
+- [Store refactor orphans](store-refactor-orphans.md) — moving data from props/Supabase into a local store can silently orphan submit/write forms; audit all callers of removed fetch/write functions.
+- [TS narrowing lost in nested closures](ts-narrowing-nested-closures.md) — `x?.field` inside a `.map()` callback nested in a ternary can wrongly narrow to `never`; hoist to a local const first.

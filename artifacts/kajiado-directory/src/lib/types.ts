@@ -47,13 +47,3 @@ export interface Job {
   whatsapp: string;
   category: string;
 }
-
-export interface SubmitShopPayload {
-  town_id: string;
-  name: string;
-  description: string;
-  category: string;
-  phone?: string;
-  whatsapp?: string;
-  hours?: string;
-}

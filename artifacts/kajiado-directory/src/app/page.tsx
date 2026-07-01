@@ -10,6 +10,7 @@ import JobsSection from "@/components/ui/JobsSection";
 import CartDrawer from "@/components/ui/CartDrawer";
 import AdminSection from "@/components/ui/AdminSection";
 import MapModal from "@/components/ui/MapModal";
+import SubmitMerchantModal from "@/components/ui/SubmitMerchantModal";
 import { useStore } from "@/lib/products-store";
 import { Town } from "@/lib/types";
 
@@ -21,6 +22,7 @@ export default function HomePage() {
   const [showCart, setShowCart] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  const [showSubmit, setShowSubmit] = useState(false);
 
   const handleTownSelect = useCallback((town: Town) => {
     setSelectedTown(town);
@@ -53,14 +55,16 @@ export default function HomePage() {
             onTownSelect={handleTownSelect}
             onClearTown={() => setSelectedTown(null)}
             onMapOpen={() => setShowMap(true)}
+            onSubmitOpen={() => setShowSubmit(true)}
           />
         )}
         {activeTab === "jobs" && <JobsSection />}
       </main>
 
-      {showCart  && <CartDrawer onClose={() => setShowCart(false)} />}
-      {showAdmin && <AdminSection onClose={() => setShowAdmin(false)} />}
-      {showMap   && <MapModal towns={towns} shops={shops} selectedTown={selectedTown} onTownSelect={handleTownSelect} onClose={() => setShowMap(false)} />}
+      {showCart   && <CartDrawer onClose={() => setShowCart(false)} />}
+      {showAdmin  && <AdminSection onClose={() => setShowAdmin(false)} />}
+      {showMap    && <MapModal towns={towns} shops={shops} selectedTown={selectedTown} onTownSelect={handleTownSelect} onClose={() => setShowMap(false)} />}
+      {showSubmit && <SubmitMerchantModal towns={towns} defaultTownId={selectedTown?.id} onClose={() => setShowSubmit(false)} />}
     </div>
   );
 }
