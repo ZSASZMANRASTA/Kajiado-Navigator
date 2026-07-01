@@ -56,7 +56,7 @@ Run the SQL in `artifacts/kajiado-directory/src/lib/supabase.ts` (the comment bl
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Keep Supabase (`src/lib/supabase.ts`, `@supabase/supabase-js` dependency) in the project even after the local-store refactor — do not remove it. The merchant submission form (`SubmitMerchantModal`) persists new listings to Supabase via `submitShop` (or simulates success if Supabase isn't configured) and also adds the shop to the local store so it appears immediately in the UI.
 
 ## Gotchas
 

@@ -5,6 +5,7 @@ import { X, CheckCircle, Loader2 } from "lucide-react";
 import { Town } from "@/lib/types";
 import { ALL_CATEGORIES } from "@/lib/data";
 import { useStore } from "@/lib/products-store";
+import { submitShop } from "@/lib/supabase";
 
 interface SubmitMerchantModalProps {
   towns: Town[];
@@ -50,8 +51,25 @@ export default function SubmitMerchantModal({
     }
     setSubmitting(true);
     setError(null);
-    // Simulate a short review delay, then add to the live directory (unlisted as premium, pending admin curation).
-    await new Promise((r) => setTimeout(r, 700));
+
+    // Persist to Supabase (falls back to a simulated delay when not configured).
+    const result = await submitShop({
+      town_id: form.town_id,
+      name: form.name.trim(),
+      description: form.description.trim(),
+      category: form.category,
+      phone: form.phone || undefined,
+      whatsapp: form.whatsapp || undefined,
+      hours: form.hours || undefined,
+    });
+
+    if (!result.success) {
+      setSubmitting(false);
+      setError(result.error ?? "Something went wrong. Please try again.");
+      return;
+    }
+
+    // Also add to the local directory store so it's visible immediately, pending admin review.
     addShop({
       town_id: form.town_id,
       name: form.name.trim(),
