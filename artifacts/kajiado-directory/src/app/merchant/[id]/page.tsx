@@ -3,7 +3,8 @@
 import { useParams, useRouter } from "next/navigation";
 import { useRef } from "react";
 import { Phone, MessageCircle, Clock, MapPin, Star, ArrowLeft, Store, ChevronLeft, ChevronRight } from "lucide-react";
-import { SHOPS, TOWNS, CATEGORY_COLORS } from "@/lib/data";
+import { CATEGORY_COLORS } from "@/lib/data";
+import { useStore } from "@/lib/products-store";
 
 const THEMES: Record<string, { gradient: string; accent: string; lightBg: string; textAccent: string }> = {
   Grocery: { gradient: "from-green-700 via-emerald-600 to-green-500", accent: "#16a34a", lightBg: "bg-green-50", textAccent: "text-green-700" },
@@ -116,9 +117,10 @@ function PhotoStrip({ images, accent }: { images: string[]; accent: string }) {
 export default function MerchantPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { shops, towns } = useStore();
 
-  const shop = SHOPS.find((s) => s.id === id);
-  const town = shop ? TOWNS.find((t) => t.id === shop.town_id) : null;
+  const shop = shops.find((s) => s.id === id);
+  const town = shop ? towns.find((t) => t.id === shop.town_id) : null;
 
   if (!shop) {
     return (
