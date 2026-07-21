@@ -72,12 +72,13 @@ const STATUS_COLORS: Record<Order["status"], string> = {
 /* ═══════════════════════════════════════════════════════════════════════
    PRODUCT FORM
 ═══════════════════════════════════════════════════════════════════════ */
-const BLANK_PRODUCT: Omit<Product, "id"> = { name: "", description: "", price: 0, unit: "", category: "Dry Goods", image_url: "", in_stock: true, badge: "" };
+const BLANK_PRODUCT: Omit<Product, "id"> = { name: "", description: "", price: 0, unit: "", category: "Dry Goods", image_url: "", in_stock: true, badge: "", shop_id: null };
 
-function ProductForm({ initial, onSave, onCancel }: {
+function ProductForm({ initial, onSave, onCancel, shops }: {
   initial: Omit<Product, "id"> & { id?: string };
   onSave: (p: Omit<Product, "id"> & { id?: string }) => void;
   onCancel: () => void;
+  shops: Shop[];
 }) {
   const [form, setForm] = useState(initial);
   const [err, setErr] = useState<Record<string, string>>({});
@@ -160,6 +161,12 @@ function ProductForm({ initial, onSave, onCancel }: {
         )}
       </Field>
       <Field label="Badge" hint="(optional)"><input value={form.badge ?? ""} onChange={e => set("badge", e.target.value)} placeholder="Best Seller / New" className={INPUT} /></Field>
+      <Field label="Merchant page" hint="(optional — show on a merchant's profile)">
+        <select value={form.shop_id ?? ""} onChange={e => set("shop_id", e.target.value || null)} className={INPUT}>
+          <option value="">None — delivery shop only</option>
+          {shops.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+      </Field>
       <div className="flex gap-2 pt-1">
         <button onClick={onCancel} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancel</button>
         <button onClick={() => { if (validate()) onSave(form); }} className="flex-1 py-2.5 bg-acacia text-white rounded-xl text-sm font-bold hover:bg-acacia/90 flex items-center justify-center gap-2">
@@ -607,8 +614,8 @@ export default function AdminSection({ onClose }: AdminSectionProps) {
                   <Plus className="w-4 h-4" /> Add New Product
                 </button>
               )}
-              {showProductForm && <ProductForm initial={BLANK_PRODUCT} onSave={handleSaveProduct} onCancel={() => setShowProductForm(false)} />}
-              {editProduct && <ProductForm initial={editProduct} onSave={handleSaveProduct} onCancel={() => setEditProduct(null)} />}
+              {showProductForm && <ProductForm initial={BLANK_PRODUCT} onSave={handleSaveProduct} onCancel={() => setShowProductForm(false)} shops={shops} />}
+              {editProduct && <ProductForm initial={editProduct} onSave={handleSaveProduct} onCancel={() => setEditProduct(null)} shops={shops} />}
               {products.map(product => (
                 <div key={product.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                   {delProduct === product.id ? (

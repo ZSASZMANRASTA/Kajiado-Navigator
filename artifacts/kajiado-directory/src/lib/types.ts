@@ -32,6 +32,7 @@ export interface Product {
   in_stock: boolean;
   badge?: string | null;
   whatsapp_order?: string;
+  shop_id?: string | null;
 }
 
 export interface Job {

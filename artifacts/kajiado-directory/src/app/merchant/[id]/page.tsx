@@ -1,19 +1,27 @@
 "use client";
 
+import { useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useRef } from "react";
-import { Phone, MessageCircle, Clock, MapPin, Star, ArrowLeft, Store, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Phone, MessageCircle, Clock, MapPin, Star, ArrowLeft, Store,
+  ChevronLeft, ChevronRight, ShoppingCart, CheckCircle, XCircle,
+  Package, ShoppingBag,
+} from "lucide-react";
 import { CATEGORY_COLORS } from "@/lib/data";
 import { useStore } from "@/lib/products-store";
+import { useCart } from "@/lib/cart";
+import { Product } from "@/lib/types";
+import CartDrawer from "@/components/ui/CartDrawer";
 
+/* ── Theming ─────────────────────────────────────────────────────────── */
 const THEMES: Record<string, { gradient: string; accent: string; lightBg: string; textAccent: string }> = {
-  Grocery: { gradient: "from-green-700 via-emerald-600 to-green-500", accent: "#16a34a", lightBg: "bg-green-50", textAccent: "text-green-700" },
-  "Crafts & Art": { gradient: "from-amber-700 via-orange-600 to-ochre", accent: "#C36F48", lightBg: "bg-amber-50", textAccent: "text-amber-700" },
-  Hardware: { gradient: "from-gray-800 via-gray-700 to-gray-600", accent: "#374151", lightBg: "bg-gray-50", textAccent: "text-gray-700" },
-  Electronics: { gradient: "from-blue-700 via-blue-600 to-blue-500", accent: "#2563eb", lightBg: "bg-blue-50", textAccent: "text-blue-700" },
-  Restaurant: { gradient: "from-orange-700 via-orange-600 to-amber-500", accent: "#ea580c", lightBg: "bg-orange-50", textAccent: "text-orange-700" },
-  "Health & Pharmacy": { gradient: "from-teal-700 via-teal-600 to-teal-500", accent: "#0d9488", lightBg: "bg-teal-50", textAccent: "text-teal-700" },
-  Hospitality: { gradient: "from-purple-800 via-purple-700 to-violet-600", accent: "#7c3aed", lightBg: "bg-purple-50", textAccent: "text-purple-700" },
+  Grocery:           { gradient: "from-green-700 via-emerald-600 to-green-500",    accent: "#16a34a", lightBg: "bg-green-50",   textAccent: "text-green-700"  },
+  "Crafts & Art":    { gradient: "from-amber-700 via-orange-600 to-ochre",         accent: "#C36F48", lightBg: "bg-amber-50",   textAccent: "text-amber-700"  },
+  Hardware:          { gradient: "from-gray-800 via-gray-700 to-gray-600",         accent: "#374151", lightBg: "bg-gray-50",    textAccent: "text-gray-700"   },
+  Electronics:       { gradient: "from-blue-700 via-blue-600 to-blue-500",         accent: "#2563eb", lightBg: "bg-blue-50",    textAccent: "text-blue-700"   },
+  Restaurant:        { gradient: "from-orange-700 via-orange-600 to-amber-500",    accent: "#ea580c", lightBg: "bg-orange-50",  textAccent: "text-orange-700" },
+  "Health & Pharmacy":{ gradient: "from-teal-700 via-teal-600 to-teal-500",       accent: "#0d9488", lightBg: "bg-teal-50",    textAccent: "text-teal-700"   },
+  Hospitality:       { gradient: "from-purple-800 via-purple-700 to-violet-600",   accent: "#7c3aed", lightBg: "bg-purple-50",  textAccent: "text-purple-700" },
 };
 
 const DEFAULT_THEME = { gradient: "from-gray-700 to-gray-500", accent: "#6b7280", lightBg: "bg-gray-50", textAccent: "text-gray-700" };
@@ -24,43 +32,13 @@ const CATEGORY_ICONS: Record<string, string> = {
 };
 
 const CATEGORY_GALLERY: Record<string, string[]> = {
-  Grocery: [
-    "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1601004890657-2f9c05b77d82?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&q=75&auto=format",
-  ],
-  "Crafts & Art": [
-    "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=75&auto=format",
-  ],
-  Hardware: [
-    "https://images.unsplash.com/photo-1590955559496-50316bd28ff8?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=600&q=75&auto=format",
-  ],
-  Electronics: [
-    "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1588508065123-287b28e013da?w=600&q=75&auto=format",
-  ],
-  Restaurant: [
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=75&auto=format",
-  ],
-  "Health & Pharmacy": [
-    "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=600&q=75&auto=format",
-  ],
-  Hospitality: [
-    "https://images.unsplash.com/photo-1455587734955-081b22074882?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=75&auto=format",
-    "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=75&auto=format",
-  ],
+  Grocery:            ["https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=75&auto=format","https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=600&q=75&auto=format","https://images.unsplash.com/photo-1601004890657-2f9c05b77d82?w=600&q=75&auto=format","https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&q=75&auto=format"],
+  "Crafts & Art":     ["https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=600&q=75&auto=format","https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=600&q=75&auto=format","https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=75&auto=format"],
+  Hardware:           ["https://images.unsplash.com/photo-1590955559496-50316bd28ff8?w=600&q=75&auto=format","https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&q=75&auto=format","https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=600&q=75&auto=format"],
+  Electronics:        ["https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=600&q=75&auto=format","https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=600&q=75&auto=format","https://images.unsplash.com/photo-1588508065123-287b28e013da?w=600&q=75&auto=format"],
+  Restaurant:         ["https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=75&auto=format","https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=75&auto=format","https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=75&auto=format","https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=75&auto=format"],
+  "Health & Pharmacy":["https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=75&auto=format","https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=600&q=75&auto=format","https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=600&q=75&auto=format"],
+  Hospitality:        ["https://images.unsplash.com/photo-1455587734955-081b22074882?w=600&q=75&auto=format","https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=75&auto=format","https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&q=75&auto=format"],
 };
 
 const DEFAULT_GALLERY = [
@@ -69,58 +47,109 @@ const DEFAULT_GALLERY = [
   "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=600&q=75&auto=format",
 ];
 
+/* ── Photo strip ─────────────────────────────────────────────────────── */
 function PhotoStrip({ images, accent }: { images: string[]; accent: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-
   const scroll = (dir: "left" | "right") => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir === "right" ? 220 : -220, behavior: "smooth" });
+    scrollRef.current?.scrollBy({ left: dir === "right" ? 220 : -220, behavior: "smooth" });
   };
-
   return (
     <div className="relative group">
-      <div
-        ref={scrollRef}
-        className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory"
-        style={{ scrollSnapType: "x mandatory" }}
-      >
+      <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory" style={{ scrollSnapType: "x mandatory" }}>
         {images.map((src, i) => (
           <div key={i} className="shrink-0 w-52 h-36 sm:w-64 sm:h-44 rounded-2xl overflow-hidden snap-start bg-gray-100">
-            <img
-              src={src}
-              alt=""
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-              onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none"; }}
-            />
+            <img src={src} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy"
+              onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = "none"; }} />
           </div>
         ))}
       </div>
-      {/* Scroll arrows — shown on hover (desktop) */}
-      <button
-        onClick={() => scroll("left")}
-        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 border border-gray-100"
-      >
+      <button onClick={() => scroll("left")} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 border border-gray-100">
         <ChevronLeft className="w-4 h-4 text-gray-600" />
       </button>
-      <button
-        onClick={() => scroll("right")}
-        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 border border-gray-100"
-      >
+      <button onClick={() => scroll("right")} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 border border-gray-100">
         <ChevronRight className="w-4 h-4 text-gray-600" />
       </button>
     </div>
   );
 }
 
+/* ── Product card ────────────────────────────────────────────────────── */
+function MerchantProductCard({ product, accent }: { product: Product; accent: string }) {
+  const { addItem, items } = useCart();
+  const [added, setAdded] = useState(false);
+  const inCart = items.find((i) => i.product.id === product.id);
+
+  const handleAdd = () => {
+    if (!product.in_stock) return;
+    addItem(product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1400);
+  };
+
+  return (
+    <div className={`bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col transition-all duration-200 hover:shadow-md ${!product.in_stock ? "opacity-60" : ""}`}>
+      {/* Image */}
+      <div className="relative h-40 bg-gray-100 overflow-hidden">
+        {product.image_url ? (
+          <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center" style={{ background: `${accent}15` }}>
+            <Package className="w-8 h-8 opacity-30" style={{ color: accent }} />
+          </div>
+        )}
+        {product.badge && (
+          <div className={`absolute top-2.5 left-2.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${product.badge === "Best Seller" ? "bg-ochre text-white" : "bg-gray-800/70 text-white"}`}>
+            {product.badge}
+          </div>
+        )}
+        {inCart && (
+          <div className="absolute top-2.5 right-2.5 text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: accent }}>
+            ×{inCart.quantity} in cart
+          </div>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="p-4 flex flex-col flex-1 gap-2">
+        <div className="flex-1">
+          <h3 className="font-bold text-gray-800 text-sm leading-snug">{product.name}</h3>
+          <p className="text-xs text-gray-400 mt-0.5 leading-relaxed line-clamp-2">{product.description}</p>
+        </div>
+        <div className="flex items-end justify-between gap-2">
+          <div>
+            <p className="text-xl font-extrabold text-gray-900">KSh {product.price.toLocaleString()}</p>
+            <p className="text-[10px] text-gray-400">{product.unit}</p>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: product.in_stock ? accent : "#9ca3af" }}>
+            {product.in_stock ? <CheckCircle className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+            {product.in_stock ? "In stock" : "Out of stock"}
+          </div>
+        </div>
+        <button
+          onClick={handleAdd}
+          disabled={!product.in_stock}
+          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed text-white`}
+          style={{ background: added ? "#4F7942" : accent }}
+        >
+          <ShoppingCart className="w-4 h-4" />
+          {added ? "Added!" : "Add to Cart"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Main page ───────────────────────────────────────────────────────── */
 export default function MerchantPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { shops, towns } = useStore();
+  const { shops, towns, products } = useStore();
+  const { itemCount } = useCart();
+  const [showCart, setShowCart] = useState(false);
 
   const shop = shops.find((s) => s.id === id);
   const town = shop ? towns.find((t) => t.id === shop.town_id) : null;
+  const merchantProducts = products.filter((p) => p.shop_id === id);
 
   if (!shop) {
     return (
@@ -139,10 +168,7 @@ export default function MerchantPage() {
   const theme = THEMES[shop.category] ?? DEFAULT_THEME;
   const catClass = CATEGORY_COLORS[shop.category] ?? "bg-gray-100 text-gray-600 border-gray-200";
   const emoji = CATEGORY_ICONS[shop.category] ?? "🏪";
-  const gallery = [
-    ...(shop.image_url ? [shop.image_url] : []),
-    ...(CATEGORY_GALLERY[shop.category] ?? DEFAULT_GALLERY),
-  ];
+  const gallery = [...(shop.image_url ? [shop.image_url] : []), ...(CATEGORY_GALLERY[shop.category] ?? DEFAULT_GALLERY)];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -206,12 +232,10 @@ export default function MerchantPage() {
       </div>
 
       {/* Main content */}
-      <div className="max-w-3xl mx-auto px-4 pb-12 space-y-5">
-        {/* Photo gallery strip */}
+      <div className="max-w-3xl mx-auto px-4 pb-24 space-y-5">
+        {/* Photo gallery */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 overflow-hidden">
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3" style={{ color: theme.accent }}>
-            Photos
-          </h2>
+          <h2 className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: theme.accent }}>Photos</h2>
           <PhotoStrip images={gallery} accent={theme.accent} />
         </div>
 
@@ -220,6 +244,26 @@ export default function MerchantPage() {
           <h2 className="font-bold text-gray-800 text-sm uppercase tracking-wide mb-3" style={{ color: theme.accent }}>About</h2>
           <p className="text-gray-600 text-sm leading-relaxed">{shop.description}</p>
         </div>
+
+        {/* ── Products & Pricing ── */}
+        {merchantProducts.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="font-extrabold text-gray-800 text-lg">Products &amp; Pricing</h2>
+                <p className="text-xs text-gray-400 mt-0.5">{merchantProducts.length} item{merchantProducts.length !== 1 ? "s" : ""} — add to cart &amp; we deliver</p>
+              </div>
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${theme.accent}15` }}>
+                <ShoppingBag className="w-4 h-4" style={{ color: theme.accent }} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {merchantProducts.map((product) => (
+                <MerchantProductCard key={product.id} product={product} accent={theme.accent} />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Info cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -248,7 +292,7 @@ export default function MerchantPage() {
           )}
         </div>
 
-        {/* Contact details */}
+        {/* Contact */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="px-5 py-3 border-b border-gray-50">
             <h2 className="font-bold text-sm uppercase tracking-wide text-gray-400">Contact</h2>
@@ -286,6 +330,25 @@ export default function MerchantPage() {
           </span>
         </div>
       </div>
+
+      {/* Floating cart button — appears when there are items */}
+      {itemCount > 0 && (
+        <button
+          onClick={() => setShowCart(true)}
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 pl-4 pr-5 py-3.5 rounded-2xl text-white text-sm font-bold shadow-2xl transition-all active:scale-95 hover:opacity-90"
+          style={{ background: theme.accent }}
+        >
+          <div className="relative">
+            <ShoppingCart className="w-5 h-5" />
+            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-white text-[9px] font-extrabold rounded-full flex items-center justify-center" style={{ color: theme.accent }}>
+              {itemCount > 9 ? "9+" : itemCount}
+            </span>
+          </div>
+          View Cart
+        </button>
+      )}
+
+      {showCart && <CartDrawer onClose={() => setShowCart(false)} />}
     </div>
   );
 }
