@@ -3,21 +3,15 @@
 import { useRef, useState } from "react";
 import {
   ShoppingBag, Store, Briefcase, ShoppingCart,
-  MapPin, X, Map, Truck, Shield, RefreshCw,
+  MapPin, X, Map,
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { Tab } from "./types";
 
 const NAV: { id: Tab; label: string; icon: React.FC<{ className?: string }>; accent?: string }[] = [
-  { id: "shop",      label: "Our Shop",  icon: ShoppingBag, accent: "text-ochre" },
+  { id: "shop",      label: "Shop",      icon: ShoppingBag, accent: "text-ochre" },
   { id: "merchants", label: "Merchants", icon: Store },
   { id: "jobs",      label: "Jobs",      icon: Briefcase },
-];
-
-const SHOP_INFO = [
-  { icon: Truck,    text: "Delivery across Kajiado" },
-  { icon: Shield,   text: "Trusted suppliers" },
-  { icon: RefreshCw, text: "Weekly restocking" },
 ];
 
 const SECRET_TAPS = 5;
@@ -90,23 +84,6 @@ function SidebarInner({
         })}
       </nav>
 
-      {/* Shop info panel */}
-      {activeTab === "shop" && (
-        <div className="mx-3 mb-3 rounded-2xl bg-ochre/[0.08] border border-ochre/15 px-4 py-3 shrink-0">
-          <p className="text-[10px] font-extrabold text-ochre uppercase tracking-widest mb-2">About Our Shop</p>
-          <p className="text-[11px] text-gray-600 leading-snug mb-3">
-            Quality goods sourced from trusted Kenyan wholesalers. Add to cart and we deliver across Kajiado County.
-          </p>
-          <div className="space-y-1.5">
-            {SHOP_INFO.map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-2 text-[11px] text-gray-500">
-                <Icon className="w-3 h-3 text-ochre shrink-0" />
-                {text}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Cart + Map */}
       <div className="px-3 border-t border-gray-100 pt-3 pb-2 shrink-0">
