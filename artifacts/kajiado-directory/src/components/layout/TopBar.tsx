@@ -20,7 +20,10 @@ export default function TopBar({ onMenuOpen, onCartOpen }: TopBarProps) {
         <Menu className="w-5 h-5" />
       </button>
 
-      <p className="font-extrabold text-gray-800 text-base tracking-tight">Kajiado Mtaani</p>
+      <div className="text-center">
+        <p className="font-extrabold text-gray-800 text-base tracking-tight leading-tight">Kajiado Mtaani</p>
+        <p className="text-[9px] text-ochre font-semibold italic leading-tight">Tamanai kajiado toloingange</p>
+      </div>
 
       <button
         onClick={onCartOpen}

@@ -4,7 +4,7 @@ import Providers from "./Providers";
 
 export const metadata: Metadata = {
   title: "Kajiado Mtaani",
-  description: "Explore towns, merchants, jobs and shop local goods across Kajiado County, Kenya.",
+  description: "Tamanai kajiado toloingange — Visit Kajiado Online. Explore towns, merchants, jobs and shop local goods across Kajiado County, Kenya.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

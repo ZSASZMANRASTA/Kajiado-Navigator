@@ -47,7 +47,7 @@ function SidebarInner({
           </div>
           <div>
             <p className="font-extrabold text-gray-800 text-sm leading-tight">Kajiado Mtaani</p>
-            <p className="text-[10px] text-gray-400 leading-tight">Kajiado County, Kenya</p>
+            <p className="text-[10px] text-ochre font-semibold leading-tight italic">Tamanai kajiado toloingange</p>
           </div>
         </button>
         {/* Tap-progress dots — only visible while tapping */}
@@ -120,6 +120,7 @@ function SidebarInner({
       {/* Footer */}
       <div className="px-5 pb-5 mt-auto shrink-0">
         <p className="text-[10px] text-gray-300">© 2025 Kajiado Mtaani</p>
+        <p className="text-[9px] text-gray-300 italic mt-0.5">Tamanai kajiado toloingange</p>
       </div>
     </div>
   );
