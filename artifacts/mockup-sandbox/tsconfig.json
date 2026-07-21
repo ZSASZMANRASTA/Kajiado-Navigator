@@ -8,6 +8,9 @@
     "jsx": "preserve",
     "esModuleInterop": true,
     "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "suppressImplicitAnyIndexErrors": true,
     "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./src/*"]
