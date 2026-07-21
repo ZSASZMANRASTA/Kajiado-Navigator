@@ -1,1 +1,1 @@
-export type Tab = "shop" | "merchants" | "jobs";
+export type Tab = "shop" | "merchants" | "jobs" | "delivery";

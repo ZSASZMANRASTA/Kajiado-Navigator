@@ -6,6 +6,7 @@ import TopBar from "@/components/layout/TopBar";
 import { Tab } from "@/components/layout/types";
 import MerchantsSection from "@/components/ui/MerchantsSection";
 import ShopSection from "@/components/ui/ShopSection";
+import DeliverySection from "@/components/ui/DeliverySection";
 import JobsSection from "@/components/ui/JobsSection";
 import CartDrawer from "@/components/ui/CartDrawer";
 import AdminSection from "@/components/ui/AdminSection";
@@ -48,6 +49,7 @@ export default function HomePage() {
 
       <main className="flex-1 sm:ml-60 pt-14 sm:pt-0 min-h-screen overflow-y-auto">
         {activeTab === "shop" && <ShopSection onCartOpen={() => setShowCart(true)} />}
+        {activeTab === "delivery" && <DeliverySection onCartOpen={() => setShowCart(true)} />}
         {activeTab === "merchants" && (
           <MerchantsSection
             towns={towns}

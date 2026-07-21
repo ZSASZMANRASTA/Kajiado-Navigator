@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import {
   ShoppingBag, Store, Briefcase, ShoppingCart,
-  MapPin, X, Map,
+  MapPin, X, Map, Truck,
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { Tab } from "./types";
@@ -11,6 +11,7 @@ import { Tab } from "./types";
 const NAV: { id: Tab; label: string; icon: React.FC<{ className?: string }>; accent?: string }[] = [
   { id: "shop",      label: "Shop",      icon: ShoppingBag, accent: "text-ochre" },
   { id: "merchants", label: "Merchants", icon: Store },
+  { id: "delivery",  label: "Delivery",  icon: Truck,       accent: "text-acacia" },
   { id: "jobs",      label: "Jobs",      icon: Briefcase },
 ];
 
